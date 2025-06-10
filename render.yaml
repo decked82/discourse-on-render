@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: discourse
+    env: docker
+    plan: free
+    branch: main
+    repo: https://github.com/decked82/discourse-on-render
+    envVars:
+      - key: DISCOURSE_HOSTNAME
+        value: forum.deckdev.org
+      - key: DISCOURSE_DEVELOPER_EMAILS
+        value: your@email.com
+      - key: DISCOURSE_SMTP_ADDRESS
+        value: smtp.mailgun.org
+      - key: DISCOURSE_SMTP_PORT
+        value: 587
+      - key: DISCOURSE_SMTP_USER_NAME
+        value: postmaster@YOUR_DOMAIN.mailgun.org
+      - key: DISCOURSE_SMTP_PASSWORD
+        value: your-mailgun-smtp-password
+      - key: RAILS_ENV
+        value: production
