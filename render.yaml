@@ -21,7 +21,7 @@ services:
       - key: DISCOURSE_SMTP_USER_NAME
         value: postmaster@mg.deckdev.org
       - key: DISCOURSE_SMTP_PASSWORD
-        value: ""
+        sync: false
 
       - key: RAILS_ENV
         value: production
@@ -36,7 +36,7 @@ services:
       - key: DISCOURSE_DB_USERNAME
         value: discourse_db_owner
       - key: DISCOURSE_DB_PASSWORD
-        value: ""
+        sync: false
 
       # ——— Redis (Upstash Free) ———
       - key: DISCOURSE_REDIS_HOST
@@ -44,4 +44,4 @@ services:
       - key: DISCOURSE_REDIS_PORT
         value: 6379
       - key: DISCOURSE_REDIS_PASSWORD
-        value: ""
+        sync: false
