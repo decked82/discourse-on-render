@@ -20,3 +20,51 @@ services:
         value: your-mailgun-smtp-password
       - key: RAILS_ENV
         value: production
+
+services:
+  - type: web
+    name: discourse
+    env: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      # ——— Обязательные переменные Discourse ———
+      - key: DISCOURSE_HOSTNAME
+        value: forum.deckdev.org
+
+      - key: DISCOURSE_DEVELOPER_EMAILS
+        value: discourse.admin@deckdev.org
+
+      # ——— SMTP (Mailgun) ———
+      - key: DISCOURSE_SMTP_ADDRESS
+        value: smtp.mailgun.org
+      - key: DISCOURSE_SMTP_PORT
+        value: 587
+      - key: DISCOURSE_SMTP_USER_NAME
+        value: postmaster@mg.deckdev.org
+      - key: DISCOURSE_SMTP_PASSWORD
+        value: ""
+
+      - key: RAILS_ENV
+        value: production
+
+      # ——— PostgreSQL (Neon.tech) ———
+      - key: DISCOURSE_DB_HOST
+        value: br-soft-moon-a198rgp0.neon.tech
+      - key: DISCOURSE_DB_PORT
+        value: 5432
+      - key: DISCOURSE_DB_NAME
+        value: discourse_db
+      - key: DISCOURSE_DB_USERNAME
+        value: discourse_db_owner
+      - key: DISCOURSE_DB_PASSWORD
+        value: ""
+
+      # ——— Redis (Upstash Free) ———
+      - key: DISCOURSE_REDIS_HOST
+        value: poetic-hyena-32253.upstash.io
+      - key: DISCOURSE_REDIS_PORT
+        value: 6379
+      - key: DISCOURSE_REDIS_PASSWORD
+        value: ""
