@@ -1,16 +1,25 @@
-FROM discourse/discourse:release
+# Используем официальный базовый образ Discourse
+FROM discourse/base:2.0.20240116-0051
 
-# Установка зависимостей и переменных окружения
-ENV RAILS_ENV=production
+# Устанавливаем рабочую директорию
+WORKDIR /var/www
 
-# Опционально: установка дополнительного софта (например, nano или curl)
- RUN apt-get update && apt-get install -y nano curl
+# Клонируем исходники Discourse
+RUN git clone https://github.com/discourse/discourse.git \
+    && cd discourse \
+    && git checkout main
 
-# Копирование плагинов или конфигураций (если нужно)
- #COPY plugins /var/www/discourse/plugins
+# Устанавливаем зависимости
+WORKDIR /var/www/discourse
+RUN bundle config set --local path 'vendor/bundle' \
+    && bundle install \
+    && yarn install
 
-# Пример: добавим и активируем плагины
- #ENV DISCOURSE_PLUGINS="discourse-akismet discourse-sitemap"
+# Клонируем плагины (опционально — можешь удалить, если не нужны)
+RUN git clone https://github.com/discourse/discourse-voting.git plugins/discourse-voting
 
-# Запуск стандартной команды при старте контейнера
-CMD ["bash", "-c", "RAILS_ENV=production bundle exec rake db:migrate && exec unicorn -c config/unicorn.conf.rb"]
+# Открываем нужные порты
+EXPOSE 3000
+
+# Указываем команду запуска
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
