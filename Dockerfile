@@ -24,7 +24,7 @@ WORKDIR /var/www
 # Клонируем Discourse
 RUN git clone https://github.com/discourse/discourse.git \
     && cd discourse \
-    && git checkout main
+    && git checkout main \
     && sed -i '/"packageManager"/d' package.json
 
 WORKDIR /var/www/discourse
