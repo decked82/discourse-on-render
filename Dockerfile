@@ -32,7 +32,7 @@ WORKDIR /var/www/discourse
 RUN bundle config set --local path 'vendor/bundle' \
     && bundle install \
     && corepack enable \
-    && yarn install --network timeout 300000
+    && yarn install --network-timeout 300000
 
 # Открываем порт
 EXPOSE 3000
