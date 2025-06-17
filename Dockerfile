@@ -35,7 +35,7 @@ COPY Gemfile* ./
 RUN bundle config set --local deployment true && \
     bundle config set --local without 'test development' && \
     bundle config set --local jobs 1 && \
-    bundle install --retry 5
+    bundle install --without test development --retry 5 --verbose
 
 # Устанавливаем JS зависимости
 RUN yarn install --frozen-lockfile --production
