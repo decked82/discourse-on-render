@@ -1,28 +1,13 @@
-FROM ruby:3.2
+FROM discourse/base:latest
 
-RUN apt-get update && apt-get install -y \
-  build-essential libpq-dev imagemagick libvips libjemalloc-dev \
-  git curl nodejs npm \
-  && apt-get clean
+WORKDIR /var/www/discourse
 
-WORKDIR /app
+COPY . .
 
-# Скачиваем Discourse
-RUN git clone https://github.com/discourse/discourse.git .
-
-# Удаляем packageManager, чтобы не мешал
-RUN sed -i '/"packageManager"/d' package.json
-
-WORKDIR /app
-
-# Установка Ruby зависимостей
-RUN gem install bundler \
-  && bundle config set --local path 'vendor/bundle' \
-  && bundle install --without test development
-
-# Установка JS зависимостей через npm (не через yarn)
-RUN npm install --legacy-peer-deps
+RUN bundle config set --local deployment true && \
+    bundle config set --local without 'test development' && \
+    MAKEFLAGS="-j1" bundle install --retry 3
 
 EXPOSE 3000
 
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
