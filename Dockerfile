@@ -2,24 +2,18 @@
 FROM discourse/base:release
 
 # Устанавливаем рабочую директорию
-WORKDIR /var/www
-
-# Клонируем исходники Discourse
-RUN git clone https://github.com/discourse/discourse.git \
-    && cd discourse \
-    && git checkout main
+WORKDIR /var/www/discourse
 
 # Устанавливаем зависимости
-WORKDIR /var/www/discourse
 RUN bundle config set --local path 'vendor/bundle' \
     && bundle install \
     && yarn install
 
-# Клонируем плагины (опционально — можешь удалить, если не нужны)
+# Клонируем плагин (опционально — можешь удалить или добавить свои)
 RUN git clone https://github.com/discourse/discourse-voting.git plugins/discourse-voting
 
-# Открываем нужные порты
+# Открываем порт
 EXPOSE 3000
 
-# Указываем команду запуска
+# Команда запуска
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
