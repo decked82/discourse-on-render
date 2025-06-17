@@ -1,26 +1,40 @@
-# Используем официальный базовый образ Discourse
-FROM discourse/base:release
+# Используем базовый образ Ubuntu (можно другой подходящий)
+FROM ruby:3.2
 
-# Устанавливаем рабочую директорию
+# Обновление и установка зависимостей
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    gnupg \
+    build-essential \
+    libpq-dev \
+    nodejs \
+    npm \
+    && apt-get clean
+
+# Установка Node.js 18 и Corepack
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && corepack enable \
+    && corepack prepare yarn@stable --activate
+
+# Установка рабочего каталога
+WORKDIR /var/www
+
+# Клонируем Discourse
+RUN git clone https://github.com/discourse/discourse.git \
+    && cd discourse \
+    && git checkout main
+
 WORKDIR /var/www/discourse
 
-# Включаем Corepack и обновляем Yarn
-RUN corepack enable && corepack prepare yarn@stable --activate
-
+# Установка зависимостей
 RUN bundle config set --local path 'vendor/bundle' \
     && bundle install \
     && yarn install
-
-# Устанавливаем зависимости
-RUN bundle config set --local path 'vendor/bundle' \
-    && bundle install \
-    && yarn install
-
-# Клонируем плагин (опционально — можешь удалить или добавить свои)
-RUN git clone https://github.com/discourse/discourse-voting.git plugins/discourse-voting
 
 # Открываем порт
 EXPOSE 3000
 
-# Команда запуска
+# Запуск
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
