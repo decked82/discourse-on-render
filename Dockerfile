@@ -1,5 +1,5 @@
 # Используем официальный базовый образ Discourse
-FROM discourse/base:2.0.20240116-0051
+FROM discourse/base:release
 
 # Устанавливаем рабочую директорию
 WORKDIR /var/www
