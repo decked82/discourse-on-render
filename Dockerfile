@@ -32,7 +32,6 @@ WORKDIR /var/www/discourse
 # Установка зависимостей
 RUN bundle config set --local path 'vendor/bundle' \
     && bundle install \
-    && corepack enable \
     && yarn install --network-timeout 300000
 
 # Открываем порт
