@@ -4,6 +4,13 @@ FROM discourse/base:release
 # Устанавливаем рабочую директорию
 WORKDIR /var/www/discourse
 
+# Включаем Corepack и обновляем Yarn
+RUN corepack enable && corepack prepare yarn@stable --activate
+
+RUN bundle config set --local path 'vendor/bundle' \
+    && bundle install \
+    && yarn install
+
 # Устанавливаем зависимости
 RUN bundle config set --local path 'vendor/bundle' \
     && bundle install \
