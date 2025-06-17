@@ -1,36 +1,45 @@
-FROM ruby:3.1-bullseye
+FROM ruby:3.1-slim
 
-# Установка системных зависимостей
+# Устанавливаем только необходимые пакеты
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
     postgresql-client \
-    imagemagick \
     git \
     curl \
-    libpq-dev \
-    build-essential \
+    imagemagick \
+    nodejs \
+    npm \
+    libvips-dev \
+    && npm install -g yarn \
     && rm -rf /var/lib/apt/lists/*
 
-# Установка Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
+WORKDIR /app
 
-WORKDIR /var/www/discourse
+# Клонируем стабильную версию
+RUN git clone --depth 1 --branch stable https://github.com/discourse/discourse.git .
 
-# Клонирование Discourse
-RUN git clone https://github.com/discourse/discourse.git . \
-    && git checkout latest-release
+# Конфигурируем bundler для экономии памяти
+ENV BUNDLE_JOBS=1
+ENV BUNDLE_RETRY=5
+ENV BUNDLE_BUILD__SASSC=--disable-march-tune-native
+ENV MAKE="make -j1"
 
-# Установка Ruby зависимостей
+# Устанавливаем bundler
 RUN gem install bundler:2.4.10
-COPY Gemfile* ./
-RUN bundle config set --local deployment true \
-    && bundle config set --local without 'test development' \
-    && bundle install --jobs 4 --retry 3
 
-# Установка JavaScript зависимостей
-RUN npm install -g yarn
-RUN yarn install --frozen-lockfile
+# Копируем Gemfile
+COPY Gemfile* ./
+
+# Установка с ограниченным параллелизмом для экономии памяти
+RUN bundle config set --local deployment true && \
+    bundle config set --local without 'test development' && \
+    bundle config set --local jobs 1 && \
+    bundle install --retry 5
+
+# Устанавливаем JS зависимости
+RUN yarn install --frozen-lockfile --production
 
 EXPOSE 3000
 
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
